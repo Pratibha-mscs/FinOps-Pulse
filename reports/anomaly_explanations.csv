@@ -1,0 +1,4 @@
+date,top_service_1,service_delta_1,top_service_2,service_delta_2,top_service_3,service_delta_3,top_rg_1,rg_delta_1,top_rg_2,rg_delta_2,top_rg_3,rg_delta_3
+2025-11-19,Compute,421.27,SQL,332.75,Storage,60.45,rg-core,393.46,rg-data,346.38,rg-web,69.32
+2025-11-25,Compute,658.07,SQL,466.64,Monitoring,39.96,rg-core,682.23,rg-data,505.68,rg-analytics,32.02
+2025-11-26,Compute,781.45,SQL,492.72,Monitoring,55.53,rg-core,718.59,rg-data,611.23,rg-web,74.57
