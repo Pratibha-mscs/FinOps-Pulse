@@ -1,4 +1,3 @@
-# FinOps-Pulse
 # FinOps Pulse — Cloud Spend Anomaly Detection & Auto-Explanation
 
 FinOps Pulse is a small FinOps monitoring tool that:
@@ -93,23 +92,35 @@ This is what makes the project business-useful: it answers **“why did it spike
 ## 4) Folder Structure
 
 
+````markdown
 ## 5) Quick Start (Run in 3 Commands)
 
-### 5.1 Setup environment
+## 5.1 Setup environment
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-5.2 Run pipeline (generate → aggregate → detect → explain)
+````
+
+## 5.2 Run pipeline (generate → aggregate → detect → explain)
+
+```bash
 PYTHONPATH=src python -m finops_pulse.run_all
+```
 
-5.3 Run dashboard
+## 5.3 Run dashboard
+
+```bash
 PYTHONPATH=src streamlit run app.py
-
+```
 
 Open:
 
-http://localhost:8501
+* [http://localhost:8501](http://localhost:8501)
+
+```
+::contentReference[oaicite:0]{index=0}
+```
 6) How to Read the Key Terms (No jargon)
 In reports/anomalies.csv
 

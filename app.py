@@ -1,0 +1,141 @@
+import pandas as pd
+import streamlit as st
+
+st.set_page_config(page_title="FinOps Pulse", layout="wide")
+st.title("FinOps Pulse — Cloud Spend Anomaly Detection")
+
+daily_total_path = "data/processed/daily_total.csv"
+anoms_path = "reports/anomalies.csv"
+expl_path = "reports/anomaly_explanations.csv"
+
+def money(x):
+    try:
+        return f"${float(x):,.2f}"
+    except Exception:
+        return str(x)
+
+# ---------------------------
+# Load data
+# ---------------------------
+daily_total = pd.read_csv(daily_total_path)
+daily_total["date"] = pd.to_datetime(daily_total["date"])
+
+anoms = pd.read_csv(anoms_path)
+anoms["date"] = pd.to_datetime(anoms["date"])
+
+expl = pd.read_csv(expl_path)
+if "date" in expl.columns:
+    expl["date"] = pd.to_datetime(expl["date"])
+
+# ---------------------------
+# Layout: chart + anomalies
+# ---------------------------
+col1, col2 = st.columns(2)
+
+with col1:
+    st.subheader("Daily Total Spend")
+    st.line_chart(daily_total.set_index("date")["total_cost"])
+
+with col2:
+    st.subheader("Detected Anomalies (Readable View)")
+
+    display_anoms = anoms.copy()
+    display_anoms["level"] = display_anoms["level"].replace(
+        {"resource_group": "Resource Group", "service": "Service", "total": "Total"}
+    )
+    display_anoms["key"] = display_anoms["key"].replace({"all": "ALL"})
+
+    display_anoms = display_anoms.rename(
+        columns={
+            "date": "Date",
+            "value": "Actual Spend",
+            "baseline": "Expected (Baseline)",
+            "mad": "Normal Variability (MAD)",
+            "threshold": "Anomaly Threshold",
+            "delta": "Delta vs Baseline",
+            "level": "Scope",
+            "key": "Service / Resource Group",
+        }
+    )
+
+    for c in [
+        "Actual Spend",
+        "Expected (Baseline)",
+        "Normal Variability (MAD)",
+        "Anomaly Threshold",
+        "Delta vs Baseline",
+    ]:
+        display_anoms[c] = display_anoms[c].map(money)
+
+    st.dataframe(
+        display_anoms.sort_values(["Date", "Delta vs Baseline"], ascending=[False, False]),
+        width="stretch",
+    )
+
+# ---------------------------
+# Auto-explanation section
+# ---------------------------
+st.subheader("Auto-Explanation (Top Drivers)")
+
+# Prefer explanation dates (these are the spike days we explained)
+if "date" in expl.columns and not expl.empty:
+    anom_dates = sorted(expl["date"].dt.date.unique(), reverse=True)
+else:
+    anom_dates = sorted(anoms["date"].dt.date.unique(), reverse=True)
+
+if len(anom_dates) == 0:
+    st.warning("No anomaly dates found.")
+else:
+    selected_date = st.selectbox("Select an anomaly date", anom_dates)
+
+    # ---- Summary computed from daily_total (always available) ----
+    sel_ts = pd.to_datetime(selected_date)
+    daily_total_sorted = daily_total.sort_values("date").copy()
+
+    today_row = daily_total_sorted[daily_total_sorted["date"].dt.date == selected_date]
+    if today_row.empty:
+        st.warning("No total spend row found for this date in daily_total.csv")
+    else:
+        actual = float(today_row.iloc[0]["total_cost"])
+        hist = daily_total_sorted[daily_total_sorted["date"] < sel_ts].tail(14)
+        expected = float(hist["total_cost"].median()) if len(hist) > 0 else 0.0
+        delta = actual - expected
+
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Actual Spend", money(actual))
+        c2.metric("Expected (14-day median)", money(expected))
+        c3.metric("Delta", f"+{money(delta)}")
+
+    # ---- Driver breakdown from explanation file ----
+    exp_row = expl[expl["date"].dt.date == selected_date] if "date" in expl.columns else pd.DataFrame()
+
+    if exp_row is not None and not exp_row.empty:
+        e = exp_row.iloc[0].to_dict()
+        drivers = []
+
+        for i in range(1, 4):
+            svc = e.get(f"top_service_{i}", "")
+            d = e.get(f"service_delta_{i}", 0.0)
+            if isinstance(svc, str) and svc.strip():
+                drivers.append({"Driver Type": "Service", "Name": svc, "Extra Spend (vs Normal)": float(d)})
+
+        for i in range(1, 4):
+            rg = e.get(f"top_rg_{i}", "")
+            d = e.get(f"rg_delta_{i}", 0.0)
+            if isinstance(rg, str) and rg.strip():
+                drivers.append({"Driver Type": "Resource Group", "Name": rg, "Extra Spend (vs Normal)": float(d)})
+
+        drivers_df = pd.DataFrame(drivers)
+
+        if not drivers_df.empty:
+            drivers_df = drivers_df.sort_values("Extra Spend (vs Normal)", ascending=False)
+            drivers_df["Extra Spend (vs Normal)"] = drivers_df["Extra Spend (vs Normal)"].map(lambda x: f"+{money(x)}")
+
+            st.write("#### Top drivers contributing to the spike")
+            st.dataframe(drivers_df, width="stretch")
+        else:
+            st.info("No drivers found for this date.")
+    else:
+        st.info("No explanation row found for this date (check reports/anomaly_explanations.csv).")
+
+st.caption("Outputs generated by the pipeline in data/processed and reports/.")
