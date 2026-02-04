@@ -92,7 +92,7 @@ This is what makes the project business-useful: it answers **“why did it spike
 ## 4) Folder Structure
 
 
-```markdown
+````markdown
 ## 5) Quick Start (Run in 3 Commands)
 
 ## 5.1 Setup environment
@@ -100,6 +100,7 @@ This is what makes the project business-useful: it answers **“why did it spike
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+````
 
 ## 5.2 Run pipeline (generate → aggregate → detect → explain)
 
