@@ -121,7 +121,7 @@ Open:
 ```
 ::contentReference[oaicite:0]{index=0}
 ```
-6) How to Read the Key Terms (No jargon)
+## 6) How to Read the Key Terms (No jargon)
 In reports/anomalies.csv
 
 Actual Spend (value): spend on that day
@@ -145,7 +145,7 @@ top_rg_1 / rg_delta_1: biggest RG contributor and its extra spend vs normal
 Note: Service and resource group views are different slices of the same spend.
 You should not add service deltas + RG deltas together.
 
-7) Tuning Sensitivity (More or fewer anomalies)
+## 7) Tuning Sensitivity (More or fewer anomalies)
 
 In src/finops_pulse/run_all.py:
 
