@@ -93,22 +93,22 @@ This is what makes the project business-useful: it answers **“why did it spike
 
 
 
-## 5) Quick Start (Run in 3 Commands)
+## 5) Quick Start 
 
-## 5.1 Setup environment
+### 5.1 Setup environment
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ````
 
-## 5.2 Run pipeline (generate → aggregate → detect → explain)
+### 5.2 Run pipeline (generate → aggregate → detect → explain)
 
 ```bash
 PYTHONPATH=src python -m finops_pulse.run_all
 ```
 
-## 5.3 Run dashboard
+### 5.3 Run dashboard
 
 ```bash
 PYTHONPATH=src streamlit run app.py
