@@ -118,29 +118,26 @@ Open:
 
 * [http://localhost:8501](http://localhost:8501)
 
-```
-::contentReference[oaicite:0]{index=0}
-```
 ## 6) How to Read the Key Terms (No jargon)
-In reports/anomalies.csv
+In reports/anomalies.csv: 
 
-Actual Spend (value): spend on that day
+    1. Actual Spend (value): spend on that day
 
-Expected (baseline): “normal” spend (median of recent days)
+    2. Expected (baseline): “normal” spend (median of recent days)
 
-Delta: extra spend = actual − expected
+    3. Delta: extra spend = actual − expected
 
-Threshold: cutoff above which it’s considered unusual
+    4. Threshold: cutoff above which it’s considered unusual
 
-Scope (level): Total / Service / Resource Group
+    5. Scope (level): Total / Service / Resource Group
 
-Key: which service or RG spiked
+    6. Key: which service or RG spiked
 
 In reports/anomaly_explanations.csv
 
-top_service_1 / service_delta_1: biggest service contributor and its extra spend vs normal
+    1. top_service_1 / service_delta_1: biggest service contributor and its extra spend vs normal
 
-top_rg_1 / rg_delta_1: biggest RG contributor and its extra spend vs normal
+    2. top_rg_1 / rg_delta_1: biggest RG contributor and its extra spend vs normal
 
 Note: Service and resource group views are different slices of the same spend.
 You should not add service deltas + RG deltas together.
@@ -149,11 +146,11 @@ You should not add service deltas + RG deltas together.
 
 In src/finops_pulse/run_all.py:
 
-mad_multiplier controls sensitivity
+   mad_multiplier controls sensitivity
 
-higher → fewer anomalies
+          1. higher → fewer anomalies
 
-lower → more anomalies
+          2. lower → more anomalies
 
 Example:
 
